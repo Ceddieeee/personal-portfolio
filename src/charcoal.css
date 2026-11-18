@@ -1,0 +1,40 @@
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.charcoal-header + main { display: flex; flex: 1; flex-direction: column; }
+.charcoal-header, .charcoal-intro {
+  background: var(--ink);
+  color: var(--paper);
+}
+.charcoal-header .site-width {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  padding-block: calc(1rem + env(safe-area-inset-top, 0px)) 1rem;
+  border-bottom: 1px solid #f6eee14d;
+}
+.charcoal-header .wordmark { --u: 1px; }
+.charcoal-header .wordmark span { color: var(--coral); }
+.charcoal-back { display: inline-flex; align-items: center; min-height: 44px; font-size: .875rem; }
+.charcoal-back:hover { text-decoration: underline; text-underline-offset: .22em; }
+.charcoal-intro { display: grid; align-items: center; flex: 1; min-height: 78svh; padding: clamp(3rem, 8vw, 8rem) 0; }
+.charcoal-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: end; gap: clamp(2rem, 6vw, 6rem); }
+.charcoal-intro h1 { margin: 0; font: 400 clamp(2.7rem, 7.6vw, 7.8rem)/.99 var(--display); letter-spacing: -.035em; overflow-wrap: anywhere; }
+.charcoal-intro p { max-width: 38ch; margin: 1.4rem 0 1.75rem; line-height: 1.55; }
+.charcoal-cta { display: inline-flex; align-items: center; gap: .55rem; min-height: 44px; padding: .65rem 1.2rem; border-radius: 99rem; background: var(--amber); color: var(--ink); font-weight: 600; }
+.charcoal-cta:hover { background: #ffc653; }
+.charcoal-inquiry { border-top: 1px solid var(--amber); padding-top: 1rem; }
+.charcoal-inquiry h2 { font: 400 clamp(1.65rem, 3.2vw, 2.45rem)/1.1 var(--display); }
+.charcoal-inquiry ul { list-style: disc; margin-top: .85rem; padding-left: 1.1rem; }
+.charcoal-inquiry li + li { margin-top: .55rem; }
+.charcoal-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+.charcoal-gallery img { width: 100%; }
+.charcoal-gallery figcaption { margin-top: .5rem; font-size: .85rem; }
+
+@media (max-width: 670px) {
+  .charcoal-layout { grid-template-columns: 1fr; }
+}
