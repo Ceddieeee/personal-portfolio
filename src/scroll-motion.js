@@ -61,6 +61,24 @@ function reveal(gsap, element, from, to, trigger = element.parentElement) {
   });
 }
 
+function animateCertificates(gsap, root) {
+  const section = root.querySelector('.certificates');
+  if (!section) return;
+
+  section.querySelectorAll('.certificate-card').forEach((card, index) => {
+    reveal(gsap, card, { y: 38, rotation: index % 2 ? 1.2 : -1.2, opacity: .3 }, {
+      y: 0, rotation: 0, duration: .9, delay: (index % 3) * .07,
+    }, card);
+
+    const image = card.querySelector('.certificate-mat img');
+    if (image) {
+      reveal(gsap, image, { y: 16, scale: 1.06, opacity: .6 }, {
+        y: 0, scale: 1, duration: 1.15, delay: .1,
+      }, card);
+    }
+  });
+}
+
 export function useScrollMotion(main) {
   useEffect(() => {
     const root = main.current;
@@ -107,7 +125,7 @@ export function useScrollMotion(main) {
 
         revealGroups('.bio', ':scope > p, :scope > .bio-actions', 18, 0.12);
         revealGroups('.timeline, .web-skills ul, .design-skills, .pills', ':scope > li', 16, 0.065);
-        revealGroups('.certificate-grid', '.certificate-card', 18, 0.1);
+        animateCertificates(gsap, root);
         revealGroups('.contact-details, .contact-form', '.contact-heading, :scope > p, .contact-links, .contact-form-intro, .form-field', 16, 0.08);
 
         return cleanupEntrance;

@@ -28,12 +28,23 @@ export const portfolio = {
       tools: ['HTML', 'CSS', 'JavaScript', 'Tailwind CSS', 'PHP', 'MySQL', 'Leaflet', 'Leaflet.heat', 'OpenStreetMap', 'ArcGIS'],
       cover: 'assets/linaraya-cover.png',
       logo: 'assets/linaraya-logo.png',
-      demoVideo: 'assets/linaraya-landing-demo.mp4',
-      detailImage: 'assets/linaraya-dashboard.png',
-      detailWidth: 1910,
-      detailHeight: 2516,
-      detailAlt: 'LINARAYA administrator dashboard showing waste report statuses, submission trends, and report counts by purok',
-      detailCaption: 'Administrator dashboard',
+      demoVideo: 'assets/linaraya-system-walkthrough.mp4',
+      demoCaption: 'System walkthrough',
+      demoPoster: 'assets/linaraya-walkthrough-poster.jpg',
+      gallery: [
+        {
+          image: 'assets/linaraya-landing.png', label: 'Public landing page', wide: true,
+          alt: 'LINARAYA landing page with resident and guest reporting options and a barangay cleanup photograph',
+        },
+        {
+          image: 'assets/linaraya-registration.png', label: 'Resident registration', wide: true,
+          alt: 'LINARAYA account registration with email or SMS verification, purok selection, and password fields',
+        },
+        {
+          image: 'assets/linaraya-dashboard.png', label: 'Administrator dashboard', wide: true,
+          alt: 'LINARAYA administrator dashboard showing report statuses, submission trends, and report counts by purok',
+        },
+      ],
     },
     {
       id: 'beezee', title: 'Beezee', category: 'Social media app design', context: 'Second-year college project',
@@ -68,40 +79,35 @@ export const portfolio = {
     },
     {
       id: 'sonata', title: 'Sonata Music Academy', category: 'Brand identity', context: 'Academic project · 2026',
-      description: 'A visual identity and promotional concepts for a music academy.',
-      problem: 'The academy needed a cohesive visual identity for digital and social media use.',
+      description: 'An academic branding project for Sonata Music Academy, a music and performing arts school concept. The identity pairs navy and gold with theatrical imagery across a logo system and promotional posters.',
+      problem: 'Create a visual identity that brings voice, instrument, and theater training together under one music academy brand.',
       role: 'Brand identity designer for an academic design project.',
-      process: 'Developed a minimalist logo and used typography, color, and layout to build a consistent identity.',
-      result: 'Created a logo, visual identity, and promotional concepts for digital and social media applications.',
-      cover: 'assets/sonata-cover.webp',
-      detailImage: 'assets/sonata-detail.webp',
-      coverAlt: 'Illustrative burgundy and cream music academy branding',
-      detailAlt: 'Illustrative branding presentation in burgundy and cream',
-      illustrativeImages: true,
-    },
-    {
-      id: 'common-ground', title: 'Common Ground', category: 'Editorial design', context: 'Sample project', sample: true,
-      description: 'A publication layout for stories about shared spaces.',
-      cover: 'assets/common-ground-cover.webp',
-      detailImage: 'assets/common-ground-detail.webp',
-      coverAlt: 'Blue and cream publication cover with an architectural line illustration',
-      detailAlt: 'Foldout publication mockup showing the Common Ground title and illustration',
-    },
-    {
-      id: 'little-lane', title: 'Little Lane', category: 'Packaging design', context: 'Sample project', sample: true,
-      description: 'Coffee packaging for two blends, House Blend and After Hours.',
-      cover: 'assets/little-lane-cover.webp',
-      detailImage: 'assets/little-lane-detail.webp',
-      coverAlt: 'Yellow and slate coffee bags on a peach background',
-      detailAlt: 'Close-up mockup of the two Little Lane coffee bags with matching star marks',
-    },
-    {
-      id: 'offbeat', title: 'Offbeat', category: 'Poster design', context: 'Sample project', sample: true,
-      description: 'A poster concept for an independent live music night.',
-      cover: 'assets/offbeat-cover.webp',
-      detailImage: 'assets/offbeat-detail.webp',
-      coverAlt: 'Black music poster with lime lettering and a circular record motif',
-      detailAlt: 'Close-up of the Offbeat poster with its live sessions and independent music night text',
+      process: 'Combined a treble clef, piano keys, and a profile silhouette in the brand mark. Applied navy and gold, expressive typography, stage lighting, and theatrical imagery to the Learn, Express, Inspire promotion and The House of Echoes musical poster.',
+      result: 'A coordinated identity with a full logo, standalone brand mark, academy promotion, musical production poster, and complementary color palette study.',
+      coverPosters: ['assets/sonata-promotion.jpg', 'assets/sonata-echoes.png'],
+      logo: 'assets/sonata-symbol.png',
+      gallery: [
+        {
+          image: 'assets/sonata-logo.png', label: 'Sonata Music Academy identity', identity: true,
+          alt: 'Sonata Music Academy logo with a gold piano key circle and a navy treble clef and profile silhouette',
+        },
+        {
+          image: 'assets/sonata-symbol.png', label: 'Standalone brand mark', identity: true,
+          alt: 'Standalone Sonata mark combining piano keys, a treble clef, and a profile silhouette in navy and gold',
+        },
+        {
+          image: 'assets/sonata-promotion.jpg', label: 'Learn, Express, Inspire',
+          alt: 'Navy and gold Sonata promotion with Learn, Express, Inspire lettering over a theater stage',
+        },
+        {
+          image: 'assets/sonata-echoes.png', label: 'The House of Echoes',
+          alt: 'The House of Echoes musical poster with gold lettering, blue stage curtains, performers, and a spotlight',
+        },
+        {
+          image: 'assets/sonata-palette.png', label: 'Complementary color palette', wide: true,
+          alt: 'The House of Echoes color study pairing navy #1B2250 with gold #CBB034',
+        },
+      ],
     },
   ],
   skills: {
@@ -116,7 +122,7 @@ export const portfolio = {
     ],
   },
   experience: [
-    { date: '2026', title: 'Capstone Leader', detail: 'LINARAYA waste reporting web application' },
+    { date: '2026', title: 'Capstone leader', detail: 'LINARAYA waste reporting web application' },
     { date: '2024', title: 'Special Program for Employment of Students (SPES)', detail: 'Engineering Office, Municipality of Quezon, Nueva Ecija' },
     { date: '2023', title: 'Special Program for Employment of Students (SPES)', detail: 'PESO, Quezon, Nueva Ecija' },
   ],
@@ -140,7 +146,7 @@ export const portfolio = {
   ],
   certificates: [
     {
-      title: 'LINARAYA Research Presentation Recognition',
+      title: 'LINARAYA research presentation recognition',
       type: 'Research recognition',
       issuer: 'NEUST Research Services Department',
       date: 'November 13, 2026',
@@ -148,7 +154,7 @@ export const portfolio = {
       thumbnail: 'certificates/linaraya-research-recognition.png',
     },
     {
-      title: 'Employability Skills: JobReady (With AI) v1',
+      title: 'Employability skills: JobReady (with AI) v1',
       type: 'Course completion',
       issuer: 'Wadhwani Foundation',
       date: 'November 6, 2026',
@@ -156,7 +162,7 @@ export const portfolio = {
       thumbnail: 'certificates/jobready.png',
     },
     {
-      title: 'Information Technology Specialist: HTML and CSS',
+      title: 'Information technology specialist: HTML and CSS',
       type: 'Certification',
       issuer: 'Certiport',
       date: 'October 29, 2026',
@@ -164,7 +170,7 @@ export const portfolio = {
       thumbnail: 'certificates/html-and-css.png',
     },
     {
-      title: 'Data-Driven Crisis Management: Utilizing AI and Predictive Analytics for Emergency Preparedness',
+      title: 'Data-driven crisis management: utilizing AI and predictive analytics for emergency preparedness',
       type: 'Seminar participation',
       issuer: 'Armstrong Training and Development Services',
       date: 'August 30, 2026',
@@ -172,7 +178,7 @@ export const portfolio = {
       thumbnail: 'certificates/data-driven-crisis-management.png',
     },
     {
-      title: 'Learning Advocate 2026 Series: Emerging IT Innovations',
+      title: 'Learning advocate 2026 series: emerging IT innovations',
       type: 'Webinar participation',
       issuer: 'UpskillTechPH Training Services',
       date: 'August 22, 2026',
@@ -180,7 +186,7 @@ export const portfolio = {
       thumbnail: 'certificates/emerging-it-innovations.png',
     },
     {
-      title: 'Database 101: Data Storage, SQL and Query Optimization',
+      title: 'Database 101: data storage, SQL and query optimization',
       type: 'Webinar participation',
       issuer: 'UpskillTechPH Training Services',
       date: 'August 21, 2026',
@@ -202,7 +208,7 @@ export const portfolio = {
     {
       title: 'Academic honors', enabled: true, items: [
         { title: 'Dean’s Lister', detail: '2023–2024' },
-        { title: 'Senior High School Graduate with High Honors' },
+        { title: 'Senior high school graduate with high honors' },
       ],
     },
   ],

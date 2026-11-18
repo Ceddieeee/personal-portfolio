@@ -3,8 +3,7 @@ import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { asset, portfolio } from './content.js';
 import { HeroLettering, HeroLetteringDefinitions } from './hero-lettering.jsx';
-import { ProjectLettering } from './project-lettering.jsx';
-import { finishLoading } from './loading-screen.js';
+import { finishLoading, pageShownEvent } from './loading-screen.js';
 import { useScrollMotion } from './scroll-motion.js';
 import './styles.css';
 
@@ -62,39 +61,79 @@ function Wordmark({ onClick }) {
   return <a className="wordmark" href="#home" onClick={onClick}><Star />{profile.name}</a>;
 }
 
+function navigationToneAt(header, x, y) {
+  const surface = document.elementsFromPoint(x, y).find((element) =>
+    !header.contains(element) && element.closest('main, footer'));
+  for (let element = surface; element; element = element.parentElement) {
+    const style = getComputedStyle(element);
+    // Both colors of the hero are dark. The desktop resume has a green
+    // upper panel and a paper lower panel; use its actual computed stop.
+    if (element.matches('.hero')) return 'light';
+    if (element.matches('.resume') && style.backgroundImage !== 'none') {
+      const stops = [...style.backgroundImage.matchAll(/([\d.]+)px/g)]
+        .map((match) => Number(match[1])).filter(Boolean);
+      if (stops.length) return y < element.getBoundingClientRect().top + stops[0] ? 'light' : 'dark';
+    }
+    const channels = style.backgroundColor.match(/[\d.]+/g)?.map(Number);
+    if (!channels || (channels.length > 3 && channels[3] < .9)) continue;
+    const [red, green, blue] = channels.slice(0, 3).map((value) => {
+      const channel = value / 255;
+      return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
+    });
+    return .2126 * red + .7152 * green + .0722 * blue < .4 ? 'light' : 'dark';
+  }
+  return 'dark';
+}
+
 function Masthead() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [overHero, setOverHero] = useState(true);
   const header = useRef(null);
   const menuButton = useRef(null);
 
   useEffect(() => {
-    const hero = document.getElementById('home');
-    const mobile = window.matchMedia('(max-width: 760px)');
-    let observer;
+    if (menuOpen) return;
+    const node = header.current;
+    const controls = [...node.querySelectorAll('.wordmark, .menu-toggle, .navigation > a')];
+    let frame;
 
-    function observeHero() {
-      observer?.disconnect();
-      if (!mobile.matches) {
-        setMenuOpen(false);
-        return;
+    function update() {
+      frame = null;
+      document.documentElement.style.setProperty('--nav-height', `${node.offsetHeight}px`);
+      for (const control of controls) {
+        const rect = control.getBoundingClientRect();
+        if (!rect.width || !rect.height || rect.right < 0) continue;
+        const x = Math.max(0, Math.min(innerWidth - 1, rect.left + rect.width / 2));
+        const y = Math.max(0, Math.min(innerHeight - 1, rect.top + rect.height / 2));
+        control.dataset.navTone = navigationToneAt(node, x, y);
       }
-      const offset = header.current.offsetHeight;
-      observer = new IntersectionObserver(([entry]) => {
-        setOverHero(entry.boundingClientRect.bottom > offset);
-      }, { rootMargin: `-${offset}px 0px 0px 0px` });
-      observer.observe(hero);
     }
-
-    observeHero();
-    window.addEventListener('resize', observeHero);
+    function scheduleUpdate() {
+      if (frame == null) frame = requestAnimationFrame(update);
+    }
+    const observer = new ResizeObserver(scheduleUpdate);
+    observer.observe(node);
+    observer.observe(document.querySelector('main'));
+    scheduleUpdate();
+    window.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate);
+    document.addEventListener(pageShownEvent, scheduleUpdate);
     return () => {
-      observer?.disconnect();
-      window.removeEventListener('resize', observeHero);
+      if (frame != null) cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+      document.removeEventListener(pageShownEvent, scheduleUpdate);
     };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 761px)');
+    const closeMenu = () => { if (desktop.matches) setMenuOpen(false); };
+    desktop.addEventListener('change', closeMenu);
+    return () => desktop.removeEventListener('change', closeMenu);
   }, []);
 
-  const headerClass = `masthead${menuOpen ? ' is-menu-open' : overHero ? '' : ' is-past-hero'}`;
+  const headerClass = `masthead${menuOpen ? ' is-menu-open' : ''}`;
 
   return <header ref={header} className={headerClass}>
     <div className="masthead-inner" onKeyDown={(event) => {
@@ -189,7 +228,9 @@ function Work() {
           aria-label={`View ${entry.sample ? 'sample' : 'case study'} for ${entry.title}`}
           onClick={(event) => openProject(entry, event.currentTarget)}>
           <span className="project-art" aria-hidden="true">
-            {entry.deviceCover ? <>
+            {entry.coverPosters ? <span className="project-poster-spread">
+              {entry.coverPosters.map(image => <img key={image} className="project-poster" src={asset(image)} alt="" loading="lazy" />)}
+            </span> : entry.deviceCover ? <>
               {entry.screens?.[0] && <span className="project-device project-device-back">
                 <img src={asset(entry.screens[0].image)} alt="" loading="lazy" />
               </span>}
@@ -200,13 +241,16 @@ function Work() {
           </span>
           <span className="project-caption">
             <span className="project-meta">{entry.category}{entry.sample && ' · Sample project'}{entry.illustrativeImages && ' · Illustrative preview'}</span>
-            <ProjectLettering title={entry.title} />
+            <span className="project-title">{entry.title}</span>
           </span>
           <span className="project-arrow"><Icon name="diagonal" size={18} /></span>
         </button>
       </li>)}
     </ul>
-    <dialog ref={dialog} className="case-study" aria-labelledby="case-title" onClose={() => opener.current?.focus()}
+    <dialog ref={dialog} className="case-study" aria-labelledby="case-title" aria-describedby="case-intro" onClose={(event) => {
+      event.currentTarget.querySelector('video')?.pause();
+      opener.current?.focus();
+    }}
       onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       <div className="case-inner">
         <div className="case-top">
@@ -219,32 +263,53 @@ function Work() {
           </button></form>
         </div>
         {project && <>
-          <h2 id="case-title">{project.title}</h2>
-          <p className="case-intro">{project.description}</p>
-          {project.demoVideo && <figure className="case-demo">
-            <video controls playsInline preload="none" aria-label="LINARAYA landing page walkthrough">
-              <source src={asset(project.demoVideo)} type="video/mp4" />
-            </video>
-            <figcaption className="case-caption">Landing page walkthrough</figcaption>
-          </figure>}
-          {project.screens ? <ul className="case-screens">
-            {project.screens.map(({ image, label }) => <li key={image}>
-              <figure><img src={asset(image)} alt={`${project.title} ${label.toLowerCase()} screen`} />
-                <figcaption>{label}</figcaption></figure>
-            </li>)}
-          </ul> : <figure>
-            <img src={asset(project.detailImage)} alt={project.detailAlt}
-              width={project.detailWidth ?? 1000} height={project.detailHeight ?? 620} />
-            {project.detailCaption && <figcaption className="case-caption">{project.detailCaption}</figcaption>}
-          </figure>}
-          {project.illustrativeImages && <p className="case-caption">Illustrative preview</p>}
-          {!project.sample && <dl className="case-facts">
-            {project.problem && <div><dt>Problem</dt><dd>{project.problem}</dd></div>}
-            <div><dt>My role</dt><dd>{project.role}</dd></div>
-            <div><dt>Process</dt><dd>{project.process}</dd></div>
-            {project.tools?.length > 0 && <div><dt>Tools</dt><dd>{project.tools.join(', ')}</dd></div>}
-            <div><dt>Final result</dt><dd>{project.result}</dd></div>
-          </dl>}
+          <header className="case-header">
+            <h2 id="case-title">{project.title}</h2>
+            <p id="case-intro" className="case-intro">{project.description}</p>
+          </header>
+          <div className="case-byline">
+            {!project.sample && <span>By {profile.name}</span>}
+            <span>{project.category}</span>
+          </div>
+          <div className="case-body">
+            {!project.sample && <dl className="case-facts">
+              {project.problem && <div><dt>Problem</dt><dd>{project.problem}</dd></div>}
+              <div><dt>My role</dt><dd>{project.role}</dd></div>
+              <div><dt>Process</dt><dd>{project.process}</dd></div>
+              {project.tools?.length > 0 && <div><dt>Tools</dt><dd>{project.tools.join(', ')}</dd></div>}
+              <div><dt>Final result</dt><dd>{project.result}</dd></div>
+            </dl>}
+            <div className="case-visuals">
+              {project.demoVideo && <figure className="case-demo">
+                <video controls playsInline preload="none" poster={project.demoPoster ? asset(project.demoPoster) : undefined}
+                  aria-label={`${project.title} ${project.demoCaption ?? 'project walkthrough'}`}>
+                  <source src={asset(project.demoVideo)} type="video/mp4" />
+                </video>
+                <figcaption className="case-caption">{project.demoCaption ?? 'Project walkthrough'}</figcaption>
+              </figure>}
+              {project.gallery ? <ul className="case-gallery" aria-label="Project artwork">
+                {project.gallery.map(({ image, label, alt, wide, identity }) => <li key={image}
+                  className={wide ? 'case-gallery-wide' : undefined} data-identity={identity || undefined}>
+                  <figure>
+                    <a href={asset(image)} target="_blank" rel="noreferrer" aria-label={`Open ${label} at full size`}>
+                      <img src={asset(image)} alt={alt} loading="lazy" />
+                    </a>
+                    <figcaption className="case-caption">{label}</figcaption>
+                  </figure>
+                </li>)}
+              </ul> : project.screens ? <ul className="case-screens">
+                {project.screens.map(({ image, label }) => <li key={image}>
+                  <figure><img src={asset(image)} alt={`${project.title} ${label.toLowerCase()} screen`} />
+                    <figcaption>{label}</figcaption></figure>
+                </li>)}
+              </ul> : <figure>
+                <img src={asset(project.detailImage)} alt={project.detailAlt}
+                  width={project.detailWidth ?? 1000} height={project.detailHeight ?? 620} />
+                {project.detailCaption && <figcaption className="case-caption">{project.detailCaption}</figcaption>}
+              </figure>}
+              {project.illustrativeImages && <p className="case-caption">Illustrative preview</p>}
+            </div>
+          </div>
           {project.designUrl && <a className="email-link case-design-link" href={project.designUrl} target="_blank" rel="noreferrer">
             View design in Figma <Icon name="diagonal" size={16} />
           </a>}
@@ -258,12 +323,6 @@ function About() {
   const linkedin = contact.socials.find(({ title }) => title === 'LinkedIn');
 
   return <section id="about" tabIndex={-1} className="about" aria-labelledby="about-title">
-    <div className="masthead-inner about-masthead">
-      <Wordmark />
-      <nav className="navigation" aria-label="About navigation">
-        {mainLinks.filter(([id]) => ['about', 'work', 'contact'].includes(id)).map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}
-      </nav>
-    </div>
     <div className="bio">
       <h2 id="about-title">Hello,<br />{profile.headline}</h2>
       {profile.bio.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
@@ -324,7 +383,7 @@ function Resume() {
       <h2>Technical skills</h2>
       <div className="technical-groups">
         <div>
-          <h3>Software Skills</h3>
+          <h3>Software skills</h3>
           <ul className="software-list">
             {skills.software.map(({ name, label }) => <li key={name}><abbr title={name}>{label}</abbr></li>)}
           </ul>

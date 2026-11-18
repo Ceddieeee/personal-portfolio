@@ -23,7 +23,7 @@ const styles = `
     color: #fdad16;
     animation: site-loader-pulse .9s ease-in-out infinite alternate;
   }
-  #site-loader .loader-name { font: 400 clamp(1.7rem, 5vw, 2.45rem)/1.15 Gloock, Georgia, serif; }
+  #site-loader .loader-name { font: 400 clamp(1.7rem, 5vw, 2.45rem)/1.15 var(--display, Gloock, Georgia, serif); text-transform: none; }
   #site-loader .loader-status { font: 500 .85rem/1.2 Montserrat, system-ui, sans-serif; }
   @keyframes site-loader-pulse {
     from { opacity: .65; transform: scale(.9); }
