@@ -389,18 +389,26 @@ footer { padding-block: 1.2rem; font-size: .85rem; font-weight: 700; }
 .composition > * { --u: .083333333cqi; }
 .masthead {
   --u: .083333333vw;
+  --nav-background: transparent;
+  --nav-foreground: var(--paper);
+  --nav-menu-background: var(--green);
   position: fixed;
   z-index: 8;
   inset: 0 0 auto;
-  color: var(--paper);
+  color: var(--nav-foreground);
+  background: var(--nav-background);
   pointer-events: none;
+  transition: background-color .25s ease, color .25s ease, box-shadow .25s ease;
+}
+.masthead.is-past-hero {
+  --nav-background: var(--paper);
+  --nav-foreground: var(--ink);
+  --nav-menu-background: var(--paper);
+  box-shadow: 0 1px 0 #16120b18;
+  pointer-events: auto;
 }
 .masthead .wordmark, .masthead .menu-toggle, .masthead .navigation { pointer-events: auto; }
-.masthead [data-nav-tone] { transition: color .2s ease; }
-.masthead [data-nav-tone="light"] { color: var(--paper); }
-.masthead [data-nav-tone="dark"] { color: var(--ink); }
 .masthead :is(a, button):focus-visible { outline-color: currentColor; }
-.masthead.is-menu-open :is(.wordmark, .menu-toggle, .navigation > a) { color: var(--paper); }
 .masthead .navigation a:last-child { color: var(--ink); }
 .masthead-inner {
   display: flex;
@@ -806,7 +814,7 @@ footer { padding-block: 1.2rem; font-size: .85rem; font-weight: 700; }
     --mobile-gutter: clamp(1rem, 6vw, 1.5rem);
     --mobile-bar-height: calc(72px + env(safe-area-inset-top, 0px));
   }
-  .masthead.is-menu-open { color: var(--paper); background: var(--green); }
+  .masthead.is-menu-open { background: var(--nav-menu-background); }
   .masthead-inner { padding: calc(14px + env(safe-area-inset-top, 0px)) var(--mobile-gutter) 14px; min-height: var(--mobile-bar-height); }
   .wordmark { position: relative; z-index: 1; gap: .4rem; font-size: 1.3rem; }
   .wordmark svg { width: 1.4rem; }
@@ -831,8 +839,8 @@ footer { padding-block: 1.2rem; font-size: .85rem; font-weight: 700; }
     align-items: flex-start;
     gap: .5rem;
     padding: calc(var(--mobile-bar-height) + 32px) var(--mobile-gutter) max(2rem, env(safe-area-inset-bottom, 0px));
-    background: var(--green);
-    color: var(--paper);
+    background: var(--nav-menu-background);
+    color: var(--nav-foreground);
     overflow-y: auto;
     visibility: hidden;
     transform: translateY(-100%);

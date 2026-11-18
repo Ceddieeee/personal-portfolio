@@ -61,51 +61,21 @@ function Wordmark({ onClick }) {
   return <a className="wordmark" href="#home" onClick={onClick}><Star />{profile.name}</a>;
 }
 
-function navigationToneAt(header, x, y) {
-  const surface = document.elementsFromPoint(x, y).find((element) =>
-    !header.contains(element) && element.closest('main, footer'));
-  for (let element = surface; element; element = element.parentElement) {
-    const style = getComputedStyle(element);
-    // Both colors of the hero are dark. The desktop resume has a green
-    // upper panel and a paper lower panel; use its actual computed stop.
-    if (element.matches('.hero')) return 'light';
-    if (element.matches('.resume') && style.backgroundImage !== 'none') {
-      const stops = [...style.backgroundImage.matchAll(/([\d.]+)px/g)]
-        .map((match) => Number(match[1])).filter(Boolean);
-      if (stops.length) return y < element.getBoundingClientRect().top + stops[0] ? 'light' : 'dark';
-    }
-    const channels = style.backgroundColor.match(/[\d.]+/g)?.map(Number);
-    if (!channels || (channels.length > 3 && channels[3] < .9)) continue;
-    const [red, green, blue] = channels.slice(0, 3).map((value) => {
-      const channel = value / 255;
-      return channel <= .04045 ? channel / 12.92 : ((channel + .055) / 1.055) ** 2.4;
-    });
-    return .2126 * red + .7152 * green + .0722 * blue < .4 ? 'light' : 'dark';
-  }
-  return 'dark';
-}
-
 function Masthead() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
   const header = useRef(null);
   const menuButton = useRef(null);
 
   useEffect(() => {
-    if (menuOpen) return;
     const node = header.current;
-    const controls = [...node.querySelectorAll('.wordmark, .menu-toggle, .navigation > a')];
+    const hero = document.getElementById('home');
     let frame;
 
     function update() {
       frame = null;
       document.documentElement.style.setProperty('--nav-height', `${node.offsetHeight}px`);
-      for (const control of controls) {
-        const rect = control.getBoundingClientRect();
-        if (!rect.width || !rect.height || rect.right < 0) continue;
-        const x = Math.max(0, Math.min(innerWidth - 1, rect.left + rect.width / 2));
-        const y = Math.max(0, Math.min(innerHeight - 1, rect.top + rect.height / 2));
-        control.dataset.navTone = navigationToneAt(node, x, y);
-      }
+      setPastHero(hero.getBoundingClientRect().bottom <= node.offsetHeight + 1);
     }
     function scheduleUpdate() {
       if (frame == null) frame = requestAnimationFrame(update);
@@ -124,7 +94,7 @@ function Masthead() {
       window.removeEventListener('resize', scheduleUpdate);
       document.removeEventListener(pageShownEvent, scheduleUpdate);
     };
-  }, [menuOpen]);
+  }, []);
 
   useEffect(() => {
     const desktop = window.matchMedia('(min-width: 761px)');
@@ -133,7 +103,7 @@ function Masthead() {
     return () => desktop.removeEventListener('change', closeMenu);
   }, []);
 
-  const headerClass = `masthead${menuOpen ? ' is-menu-open' : ''}`;
+  const headerClass = `masthead${pastHero ? ' is-past-hero' : ''}${menuOpen ? ' is-menu-open' : ''}`;
 
   return <header ref={header} className={headerClass}>
     <div className="masthead-inner" onKeyDown={(event) => {
